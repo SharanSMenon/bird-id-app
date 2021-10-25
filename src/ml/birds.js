@@ -1,5 +1,4 @@
 import * as tf from "@tensorflow/tfjs";
-import { getDimsImg } from "./image";
 import classes from "../data/classes.json"
 
 export const load_tfjs_model = async () => {
