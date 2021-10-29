@@ -6,12 +6,14 @@ import * as tf from "@tensorflow/tfjs";
 import Header from "./components/header";
 import { getDimsImg } from "./ml/image";
 import PredictionList from "./components/PredictionList";
+import { checkIfPositionSet, getPosition } from "./utils/utils";
 
 function App() {
   const [model, setModel] = useState(null);
   const [disabled, setDisabled] = useState(true);
   const [preds, setPreds] = useState([]);
   const [imageSrc, setImageSrc] = useState(null);
+  const [position, setPosition] = useState(null);
 
   const predict = async (model, e) => {
     const files = e.target.files;
@@ -30,12 +32,38 @@ function App() {
     return null
   }
 
+  const createPosition = async () => {
+    let position = null;
+    if (checkIfPositionSet()) {
+      const pos = checkIfPositionSet();
+      position = JSON.parse(pos);
+    } else {
+      try {
+        const pos = await getPosition();
+        position = {
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude
+        }
+        localStorage.setItem("position", JSON.stringify(position))
+      } catch (error) {
+        console.log("Set geolocation")
+      }
+    }
+    setPosition(position);
+    setDisabled(false);
+  }
+
   useEffect(() => {
     tf.ready().then(async () => {
       const mdl = await load_tfjs_model();
-      setModel(mdl)
-      setDisabled(false)
+      setModel(mdl);
     });
+    if ("geolocation" in navigator) {
+      console.log("available")
+      createPosition();
+    } else {
+      console.log("not available");
+    }
   }, [])
 
   return (
@@ -47,14 +75,17 @@ function App() {
             predict(model, e)
           }} />
       </div>
-      <div class="row">
-        <div class="col-md-6">
-          <img src={imageSrc} className="img-thumbnail img-flush" height="250" alt="Your bird"/>
+      {preds.length > 0 && (
+        <div className="row">
+          <div className="col-md-6">
+            <img src={imageSrc} className="img-thumbnail img-flush" height="250" alt="Your bird" />
+          </div>
+          <div className="col-sm">
+            <PredictionList predictions={preds} position={position}/>
+          </div>
         </div>
-        <div className="col-sm">
-          <PredictionList predictions={preds} />
-        </div>
-      </div>
+      )
+      }
     </div>
   );
 }
