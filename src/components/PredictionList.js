@@ -36,6 +36,7 @@ export default function PredictionList(props) {
             data.seenHere = seenHere;
             data.livesHere = speciesLivesHere(scientificName, recentObservations);
             data.recentObservations = createObservations(recentObservations);
+            data.rawObservations = recentObservations;
         }
         if (taxonData["photo"] != null) {
             data.imageURL = taxonData["photo"]["medium_url"]
@@ -61,13 +62,13 @@ export default function PredictionList(props) {
                         <div>
                         {prediction}
                         </div>
-                        {modalIsLoading[idx] && <Spinner animation="border" size="sm"/>}
+                        {modalIsLoading[idx] && <Spinner animation="border" height="10px"/>}
                     </ListGroup.Item>
                 ))}
             </ListGroup>)
             }
             {(props.predictions.length > 0 && loading) && (
-                <div>
+                <div className="d-flex justify-content-center">
                     <Spinner animation="border" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </Spinner>

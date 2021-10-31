@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Accordion, ListGroup } from "react-bootstrap";
-
+import BirdMap from "./BirdMap";
 export default function InfoModal(props) {
     const { isOpen, onClose, data } = props;
 
@@ -46,6 +46,14 @@ export default function InfoModal(props) {
                                     })}
                                     {data.recentObservations.length <= 2 && (<ListGroup.Item>No recent observations</ListGroup.Item>)}
                                 </ListGroup>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    )}
+                    {(data.locationBased && data.recentObservations.length > 2) && (
+                        <Accordion.Item eventKey="2">
+                            <Accordion.Header>Map of Recent Observations in your area</Accordion.Header>
+                            <Accordion.Body>
+                                <BirdMap position={props.position} observations={data.rawObservations}/>
                             </Accordion.Body>
                         </Accordion.Item>
                     )}

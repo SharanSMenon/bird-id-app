@@ -7,6 +7,7 @@ import Header from "./components/header";
 import { getDimsImg } from "./ml/image";
 import PredictionList from "./components/PredictionList";
 import { checkIfPositionSet, getPosition } from "./utils/utils";
+import { Spinner } from "react-bootstrap";
 
 function App() {
   const [model, setModel] = useState(null);
@@ -14,16 +15,19 @@ function App() {
   const [preds, setPreds] = useState([]);
   const [imageSrc, setImageSrc] = useState(null);
   const [position, setPosition] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const predict = async (model, e) => {
     const files = e.target.files;
     if (files.length > 0) {
+      setLoading(true);
       const file = files[0];
       const fileOBJ = URL.createObjectURL(file)
       const { height, width } = await getDimsImg(fileOBJ);
       const predict_img = new Image(width, height);
       predict_img.src = fileOBJ;
       setImageSrc(fileOBJ);
+      setLoading(false);
       predict_img.onload = async () => {
         const predictions = await classify_image(model, predict_img);
         setPreds(predictions);
@@ -75,7 +79,12 @@ function App() {
             predict(model, e)
           }} />
       </div>
-      {preds.length > 0 && (
+      {loading && (
+        <div className="d-flex justify-content-center" height="500px">
+          <Spinner animation="grow" className="align-self-center" role="status" />
+        </div>
+      )}
+      {(preds.length > 0 && !loading) && (
         <div className="row">
           <div className="col-md-6">
             <img src={imageSrc} className="img-thumbnail img-flush" height="250" alt="Your bird" />
